@@ -1,0 +1,38 @@
+import { useFlavors } from '../utils/flavors.js';
+import { useStore } from '../store/useStore.js';
+
+/** Recipes tab: saved presets with load / pour / delete. */
+export default function SavedRecipes({ goToMix }) {
+  const { recipes, loadLevels, dispenseLevels, deleteRecipe } = useStore();
+  const FLAVORS = useFlavors();
+
+  if (!recipes.length)
+    return <p className="mt-16 text-center text-slate-400">No saved recipes yet.<br />Build one on the Mix tab and tap Save.</p>;
+
+  return (
+    <ul className="space-y-3">
+      {recipes.map((r) => {
+        const parts = FLAVORS.filter((f) => r.levels[f.id] > 0);
+        return (
+          <li key={r.id} className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+            <div className="flex items-start justify-between">
+              <h3 className="font-bold">{r.name}</h3>
+              <button onClick={() => deleteRecipe(r.id)} className="text-sm text-rose-400">Delete</button>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {parts.map((f) => (
+                <span key={f.id} className="rounded-full px-2 py-0.5 text-xs font-medium text-slate-900" style={{ background: f.color }}>
+                  {f.name} {r.levels[f.id]}%
+                </span>
+              ))}
+            </div>
+            <div className="mt-3 flex gap-2">
+              <button onClick={() => { loadLevels(r.levels); goToMix(); }} className="flex-1 rounded-lg bg-slate-800 py-2 text-sm active:scale-95">Edit</button>
+              <button onClick={() => dispenseLevels(r.levels, r.name)} className="flex-1 rounded-lg bg-indigo-600 py-2 text-sm font-bold active:scale-95">Pour</button>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
